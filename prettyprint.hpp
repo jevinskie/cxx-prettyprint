@@ -12,6 +12,7 @@
 #define H_PRETTY_PRINT
 
 #include <cstddef>
+#include <functional>
 #include <iterator>
 #include <memory>
 #include <ostream>
@@ -207,6 +208,20 @@ namespace pretty_print
         }
     };
 
+    // Specialization for reference_wrappers
+
+    template <typename T, typename TChar, typename TCharTraits, typename TDelimiters>
+    template <typename TW>
+    struct print_container_helper<T, TChar, TCharTraits, TDelimiters>::printer<std::reference_wrapper<TW>>
+    {
+        using ostream_type = typename print_container_helper<T, TChar, TCharTraits, TDelimiters>::ostream_type;
+
+        static void print_body(const std::reference_wrapper<TW> & rw, ostream_type & stream)
+        {
+            stream << rw.get();
+        }
+    };
+
     // Prints a print_container_helper to the specified stream.
 
     template<typename T, typename TChar, typename TCharTraits, typename TDelimiters>
@@ -241,6 +256,9 @@ namespace pretty_print
 
     template <typename ...Args>
     struct is_container<std::tuple<Args...>> : std::true_type { };
+
+    template <typename TW>
+    struct is_container<std::reference_wrapper<TW>> : std::true_type { };
 
 
     // Default delimiters
